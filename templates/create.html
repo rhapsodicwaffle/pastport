@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Capsule</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <style>
+    .form-container {
+      max-width: 800px;
+      margin: 40px auto;
+      background-color: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 6px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="form-container">
+  <h2>Create Capsule</h2>
+  <form method="POST" enctype="multipart/form-data">
+    <!-- Title -->
+    <label for="title">Capsule Title</label>
+    <input type="text" id="title" name="title" required>
+
+    <!-- Message -->
+    <div class="form-group">
+      <label for="text">Message</label>
+      <textarea name="text" rows="5" placeholder="Write your message here..." required></textarea>
+    </div>
+
+    <!-- Capsule Type -->
+    <div class="form-group">
+      <label for="type">Capsule Type</label>
+      <select name="type" id="capsuleType" required onchange="toggleEncryption()">
+        <option value="regular">Regular</option>
+        <option value="encrypted">Encrypted</option>
+      </select>
+    </div>
+
+    <!-- Encryption Field -->
+    <div class="form-group hidden" id="encryptionField">
+      <label for="encryption">Encryption Password</label>
+      <input type="text" name="encryption" placeholder="Enter encryption password" />
+    </div>
+
+    <!-- Accessibility -->
+    <div class="form-group">
+      <label for="accessibility">Accessibility</label>
+      <select name="accessibility" id="accessibility" onchange="toggleRecipients()">
+        <option value="private">Private</option>
+        <option value="public">Public</option>
+        <option value="share">Share With</option>
+      </select>
+    </div>
+
+    <!-- Recipient Email for Share -->
+    <div class="form-group hidden" id="recipientGroup">
+      <label for="recipient_email">Recipient Email (for Share)</label>
+      <input type="email" name="recipient_email" placeholder="example@mail.com" />
+    </div>
+
+    <!-- Tags -->
+    <div class="form-group">
+      <label for="tags">Tags (comma separated)</label>
+      <input type="text" name="tags" placeholder="birthday, family, love" />
+    </div>
+
+    <!-- Expiry Date -->
+    <div class="form-group">
+      <label for="expiry_date">Expiry Date</label>
+      <input type="date" name="expiry_date" />
+    </div>
+
+    <!-- Delivery Date -->
+    <div class="form-group">
+      <label for="schedule_date">Delivery Date</label>
+      <input type="date" name="schedule_date" />
+      <label><input type="checkbox" name="send_now" value="true" /> Send NOW (for testing)</label>
+    </div>
+
+    <!-- File Upload -->
+    <div class="form-group">
+      <label for="files">Upload Files (Images/Videos)</label>
+      <input type="file" name="files" multiple />
+    </div>
+
+    <!-- Memorial Capsule Option -->
+    <div class="form-group">
+      <label><input type="checkbox" id="is_memorial" name="is_memorial" onchange="toggleMemorialFields()" /> This is a Memorial Capsule</label>
+    </div>
+
+    <!-- Verifier Emails -->
+    <div id="memorialFields" class="hidden">
+      <div class="form-group">
+        <label for="verifier1">Verifier 1 Email</label>
+        <input type="email" name="verifier1" placeholder="verifier1@example.com" />
+      </div>
+      <div class="form-group">
+        <label for="verifier2">Verifier 2 Email</label>
+        <input type="email" name="verifier2" placeholder="verifier2@example.com" />
+      </div>
+      <div class="form-group">
+        <label for="verifier3">Verifier 3 Email</label>
+        <input type="email" name="verifier3" placeholder="verifier3@example.com" />
+      </div>
+
+      <!-- Recipient Emails After Death -->
+      <div class="form-group">
+        <label for="recipient1">Recipient Email (after death)</label>
+        <input type="email" name="recipient1" placeholder="lovedone1@example.com" />
+      </div>
+      <!-- Add more recipients if needed -->
+    </div>
+
+    <!-- Submit -->
+    <div class="form-group">
+      <button type="submit">Create Capsule</button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  function toggleEncryption() {
+    const type = document.getElementById("capsuleType").value;
+    const encField = document.getElementById("encryptionField");
+    encField.classList.toggle("hidden", type !== "encrypted");
+  }
+
+  function toggleRecipients() {
+    const access = document.getElementById("accessibility").value;
+    const group = document.getElementById("recipientGroup");
+    group.classList.toggle("hidden", access !== "share");
+  }
+
+  function toggleMemorialFields() {
+    const memorialFields = document.getElementById("memorialFields");
+    const isMemorial = document.getElementById("is_memorial").checked;
+    memorialFields.classList.toggle("hidden", !isMemorial);
+  }
+
+  window.onload = function () {
+    toggleEncryption();
+    toggleRecipients();
+    toggleMemorialFields();
+  }
+</script>
+
+</body>
+</html>

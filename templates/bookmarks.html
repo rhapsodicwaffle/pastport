@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Bookmarks</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <style>
+    .bookmark-container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .section-title {
+      margin-bottom: 10px;
+      color: #3498db;
+    }
+
+    .item {
+      border-bottom: 1px solid #ccc;
+      padding: 15px 0;
+    }
+
+    .item:last-child {
+      border-bottom: none;
+    }
+
+    .item h4 {
+      margin-bottom: 8px;
+    }
+
+    .item p {
+      margin: 5px 0;
+    }
+
+    .btn {
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .btn-danger {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #c0392b;
+    }
+
+    .back-btn {
+      display: inline-block;
+      margin: 30px auto 10px;
+      text-align: center;
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      font-weight: bold;
+      border-radius: 8px;
+      text-decoration: none;
+      display: block;
+      max-width: 200px;
+    }
+
+    .back-btn:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+
+<a href="/home" class="back-btn">← Back to Home</a>
+
+<div class="bookmark-container">
+
+  <h2 class="section-title">📦 Bookmarked Capsules</h2>
+
+  {% for capsule in capsules %}
+    <div class="item">
+      <h4>{{ capsule.title }}</h4>
+      <p><strong>Created:</strong> {{ capsule.created_at.strftime('%Y-%m-%d') }}</p>
+      <p><strong>Type:</strong> {{ capsule.type }} | <strong>Tags:</strong> {{ capsule.tags }}</p>
+      <a href="/capsule/{{ capsule.id }}" class="btn btn-primary">Open Capsule</a>
+      <form method="POST" action="{{ url_for('bookmark.remove_bookmark', item_type='capsule', item_id=capsule.id) }}" style="display:inline;" onsubmit="return confirm('Remove this capsule bookmark?');">
+        <button type="submit" class="btn btn-danger">❌ Remove</button>
+      </form>
+    </div>
+  {% else %}
+    <p>You haven’t bookmarked any capsules yet.</p>
+  {% endfor %}
+
+  <hr style="margin: 30px 0;">
+
+  <h2 class="section-title">📝 Bookmarked Blog Posts</h2>
+
+  {% for post in blogs %}
+    <div class="item">
+      <h4>{{ post.title }}</h4>
+      <p><strong>Author:</strong> {{ post.author }} | <strong>Date:</strong> {{ post.date.strftime('%Y-%m-%d') }}</p>
+      <p>{{ post.content[:200] }}...</p>
+      <a href="{{ url_for('blog.view_blog') }}" class="btn btn-primary">View Blog</a>
+      <form method="POST" action="{{ url_for('bookmark.remove_bookmark', item_type='blog', item_id=post.id) }}" style="display:inline;" onsubmit="return confirm('Remove this blog bookmark?');">
+        <button type="submit" class="btn btn-danger">❌ Remove</button>
+      </form>
+    </div>
+  {% else %}
+    <p>You haven’t bookmarked any blog posts yet.</p>
+  {% endfor %}
+
+</div>
+
+</body>
+</html>

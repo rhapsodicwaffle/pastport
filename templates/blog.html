@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog Posts</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body style="background-color: #f5faff;">
+  <div class="container py-5">
+
+    <!-- Back to Home Button -->
+    <div class="mb-4">
+      <a href="/home" class="btn btn-outline-secondary">&larr; Back to Home</a>
+    </div>
+
+    <div class="mb-4 text-center">
+      <h1 class="fw-bold">My Blog Posts</h1>
+      <p class="text-muted">Welcome to your personal blog board.</p>
+    </div>
+
+    {% for post in posts %}
+    <div class="card mb-4">
+      <div class="card-body">
+        <h3 class="card-title text-primary">{{ post.title }}</h3>
+        <p class="text-muted mb-1">Posted on {{ post.date.strftime('%Y-%m-%d') }} by {{ post.author }}</p>
+        <p class="card-text">{{ post.content[:200] }}...</p>
+        <div class="d-flex gap-2">
+          <a href="{{ url_for('blog.edit_blog', post_id=post.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+          <a href="{{ url_for('blog.delete_blog', post_id=post.id) }}" class="btn btn-sm btn-outline-danger">Delete</a>
+
+          <!-- Bookmark Toggle -->
+          {% if post.id in bookmarked_blog_ids %}
+            <form method="POST" action="{{ url_for('bookmark.remove_bookmark', item_type='blog', item_id=post.id) }}" onsubmit="return confirm('Remove this blog post from bookmarks?');">
+              <button type="submit" class="btn btn-sm btn-danger">❌ Remove Bookmark</button>
+            </form>
+          {% else %}
+            <form method="POST" action="{{ url_for('bookmark.add_bookmark', item_type='blog', item_id=post.id) }}">
+              <button type="submit" class="btn btn-sm btn-outline-secondary">🔖 Bookmark</button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
+    <div class="text-center">
+      <a href="{{ url_for('blog.new_blog') }}" class="btn btn-success">+ New Blog Post</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

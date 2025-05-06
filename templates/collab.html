@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Futuristic Collaborative Editor</title>
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&family=Roboto&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 30px;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #1f1c2c, #928dab);
+      color: #f4f4f4;
+    }
+    h2, h3 {
+      font-family: 'Orbitron', sans-serif;
+      color: #00ffe7;
+      text-shadow: 0 0 5px #00ffe7, 0 0 15px #00ffe7;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+    input, textarea {
+      width: 100%;
+      font-size: 16px;
+      margin: 8px 0 16px;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #2e2e3a;
+      color: #fff;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+    }
+    button {
+      font-size: 16px;
+      background: linear-gradient(135deg, #00ffe7, #4facfe);
+      color: #1b1b1b;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 0 10px #00ffe7;
+      transition: 0.3s ease;
+    }
+    button:hover {
+      box-shadow: 0 0 20px #00ffe7, 0 0 30px #4facfe;
+      transform: scale(1.03);
+    }
+    #messageBox { height: 200px; }
+    #log, #typing-indicator {
+      font-size: 14px;
+      margin-top: 10px;
+      color: #aaa;
+      font-style: italic;
+    }
+    #user-list {
+      list-style: none;
+      padding: 0;
+    }
+    #user-list li {
+      padding: 5px 0;
+      border-bottom: 1px solid #333;
+    }
+    #message-history {
+      white-space: pre-line;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid #444;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    #cursor-overlay {
+      position: relative;
+    }
+    .cursor-marker {
+      position: absolute;
+      font-size: 12px;
+      background: #00ffe7;
+      color: #000;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+      animation: fade 1.5s ease-out forwards;
+    }
+    .highlight { animation: glow 0.5s ease-in-out; }
+    @keyframes glow {
+      from { background-color: #00ffe720; }
+      to { background-color: transparent; }
+    }
+    @keyframes fade {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+    hr { border: none; border-top: 1px solid #444; margin: 30px 0; }
+  </style>
+</head>
+<body>
+  <button onclick="window.location.href='/home';" style="background: #ff6347; margin-bottom: 20px;">Back to Home</button>
+
+  <h2>COLLABORATIVE MESSAGE</h2>
+
+  <label>Room ID (8 digits)</label>
+  <input type="text" id="room" placeholder="e.g. 12345678" />
+  <button onclick="joinRoom()">Join Room</button>
+
+  <textarea id="messageBox" placeholder="Type your message..." disabled></textarea>
+  <div id="log"></div>
+  <p id="typing-indicator"></p>
+  <div id="cursor-overlay"></div>
+  <hr>
+
+  <h3>👥 Live Users</h3>
+  <ul id="user-list"></ul>
+
+  <h3>📜 Message History</h3>
+  <div id="message-history"></div>
+  <hr>
+
+  <h3>📨 Invite a Collaborator</h3>
+  <input type="email" id="invite-email" placeholder="Enter email address" required />
+  <button onclick="sendInvite()">Send Invite</button>
+  <p id="invite-status"></p>
+
+  <hr>
+
+  <!-- New Section to Send Message via Email -->
+  <h3>✉️ Send Message via Email</h3>
+  <input type="email" id="email-to-send" placeholder="Recipient email" required />
+  <button onclick="sendMessageEmail()">Send Message</button>
+  <p id="email-status"></p>
+
+  <script>
+    const socket = io();
+    let currentRoom = null;
+    const roomInput = document.getElementById('room');
+    const messageBox = document.getElementById('messageBox');
+    const log = document.getElementById('log');
+    const userList = document.getElementById('user-list');
+    const messageHistory = document.getElementById('message-history');
+    const typingIndicator = document.getElementById('typing-indicator');
+    const cursorOverlay = document.getElementById('cursor-overlay');
+    const emailToSendInput = document.getElementById('email-to-send');
+    let typingTimeout;
+
+    function joinRoom() {
+      const room = roomInput.value.trim();
+      if (!room) return alert("Enter room ID");
+      if (!/^[0-9]{8}$/.test(room)) return alert("Room ID must be 8 digits.");
+      currentRoom = room;
+      socket.emit('join', { room_id: room });
+      messageBox.disabled = false;
+      log.innerText = `🟢 You joined room: ${room}`;
+    }
+
+    messageBox.addEventListener('input', () => {
+      socket.emit('update_message', { room_id: currentRoom, message: messageBox.value });
+      socket.emit('typing', { room_id: currentRoom });
+    });
+
+    messageBox.addEventListener('keyup', () => {
+      socket.emit('cursor_position', {
+        room_id: currentRoom,
+        position: messageBox.selectionStart
+      });
+    });
+
+    socket.on('user_joined', data => {
+      messageBox.value = data.message;
+      log.innerText = `👤 ${data.username} joined the room.`;
+      updateUserList(data.users);
+      updateHistory(data.history);
+    });
+
+    socket.on('message_updated', data => {
+      messageBox.value = data.message;
+      updateHistory(data.history);
+      highlightChange();
+    });
+
+    socket.on('user_left', data => {
+      log.innerText = `👋 ${data.username} left the room.`;
+      updateUserList(data.users);
+    });
+
+    socket.on('user_typing', data => {
+      typingIndicator.innerText = `${data.username} is typing...`;
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => typingIndicator.innerText = '', 2000);
+    });
+
+    socket.on('cursor_update', data => {
+      const tag = `cursor-${data.username.replace(/\s+/g, '-')}`;
+      document.getElementById(tag)?.remove();
+      const el = document.createElement('div');
+      el.id = tag;
+      el.className = 'cursor-marker';
+      el.textContent = `${data.username} ⬇`;
+      el.style.top = `${50 + data.position * 0.6}px`;
+      el.style.left = '10px';
+      cursorOverlay.appendChild(el);
+      setTimeout(() => el.remove(), 1500);
+    });
+
+    function updateUserList(users) {
+      userList.innerHTML = '';
+      users.forEach(user => {
+        const li = document.createElement('li');
+        li.textContent = user;
+        userList.appendChild(li);
+      });
+    }
+
+    function updateHistory(history) {
+      messageHistory.textContent = history.join('\n\n');
+    }
+
+    function highlightChange() {
+      messageBox.classList.add('highlight');
+      setTimeout(() => messageBox.classList.remove('highlight'), 500);
+    }
+
+    function sendInvite() {
+      const email = document.getElementById("invite-email").value;
+      if (!email || !currentRoom) return document.getElementById("invite-status").innerText = "❌ Enter email and join a room.";
+      fetch('/collab/send-invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, room_id: currentRoom })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("invite-status").innerText = data.success ? "✅ Invitation sent!" : `❌ ${data.error}`;
+      })
+      .catch(() => document.getElementById("invite-status").innerText = "❌ Error sending invite.");
+    }
+
+    function sendMessageEmail() {
+      const email = emailToSendInput.value.trim();
+      const message = messageBox.value.trim();
+
+      if (!email || !message || !currentRoom) {
+        return document.getElementById("email-status").innerText = "❌ Enter recipient email and join a room.";
+      }
+
+      fetch('/collab/send-message-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, room_id: currentRoom, message })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("email-status").innerText = data.success ? "✅ Message sent via email!" : `❌ ${data.error}`;
+      })
+      .catch(() => document.getElementById("email-status").innerText = "❌ Error sending message via email.");
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Capsules</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <style>
+    .capsule-list {
+      max-width: 800px;
+      margin: 40px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    .capsule {
+      border-bottom: 1px solid #ccc;
+      padding: 15px 0;
+    }
+    .capsule:last-child {
+      border-bottom: none;
+    }
+    .capsule h3 {
+      margin-bottom: 10px;
+      color: #3498db;
+    }
+    .capsule p {
+      margin: 5px 0;
+    }
+    .view-btn {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 8px 14px;
+      background-color: #3498db;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .delete-btn {
+      background-color: #e74c3c;
+      margin-left: 10px;
+    }
+    .back-btn {
+      display: inline-block;
+      margin: 30px auto 10px;
+      text-align: center;
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      font-weight: bold;
+      border-radius: 8px;
+      text-decoration: none;
+      display: block;
+      max-width: 200px;
+    }
+    .back-btn:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+
+  <a href="/home" class="back-btn">← Back to Home</a>
+
+  <div class="capsule-list">
+    <h2>My Capsules</h2>
+
+    {% for capsule in capsules %}
+      <div class="capsule">
+        
+<h3>{{ capsule.title }}</h3>
+<p><strong>Type:</strong> {{ capsule.type }}</p>
+<p><strong>Tags:</strong> {{ capsule.tags }}</p>
+<p><strong>Created On:</strong> {{ capsule.created_at.strftime('%Y-%m-%d') }}</p>
+<p><strong>Opens On:</strong> {{ capsule.delivery_date or 'Open Now' }}</p>
+<p><strong>Expiry Date:</strong> {{ capsule.expiry_date or 'N/A' }}</p>
+<p><strong>Accessibility:</strong> {{ capsule.accessibility }}</p>
+
+<a href="/capsule/{{ capsule.id }}" class="view-btn">Open Capsule →</a>
+
+
+
+{% if capsule.type == 'encrypted' %}
+  <form action="/capsule/download/{{ capsule.id }}" method="GET" onsubmit="return promptPassword('{{ capsule.id }}');">
+    <button type="submit" class="view-btn download-btn">⬇ Download</button>
+  </form>
+{% else %}
+  <a href="/capsule/download/{{ capsule.id }}" class="view-btn download-btn">⬇ Download</a>
+{% endif %}
+
+
+        <form action="/capsule/delete/{{ capsule.id }}" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this capsule?');">
+          <button type="submit" class="view-btn delete-btn">🗑 Delete</button>
+        </form>
+      </div>
+    {% else %}
+      <p>You haven't created any capsules yet.</p>
+    {% endfor %}
+  </div>
+
+
+<script>
+function promptPassword(id) {
+  const pin = prompt("Enter the PIN for encrypted capsule download:");
+  if (!pin) return false;
+  alert("🔒 Downloading... (this is a placeholder — you can validate the PIN on server side)");
+  return true;
+}
+</script>
+</body>
+
+</html>

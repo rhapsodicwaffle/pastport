@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Notifications</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5faff;
+      margin: 0;
+      padding: 0;
+    }
+
+    .header {
+      background-color: #3498db;
+      padding: 20px;
+      color: white;
+      text-align: center;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+
+    .header .tagline {
+      margin-top: 10px;
+      font-size: 1.2em;
+    }
+
+    .banner {
+      background-image: url('https://www.mekongculturalhub.org/wp-content/uploads/2022/10/Covid-time-capsule-1024x460.png');
+      background-size: cover;
+      background-position: center;
+      height: 200px;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .main-content {
+      width: 80%;
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .main-content h2 {
+      font-size: 1.8em;
+      color: #3498db;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .notifications-list {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .notification-item {
+      padding: 15px;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      background-color: #fafafa;
+      font-size: 1.1em;
+      color: #555;
+    }
+
+    .notification-item:last-child {
+      border-bottom: none;
+    }
+
+    .notification-item p {
+      margin: 5px 0;
+    }
+
+    .notification-item small {
+      color: #999;
+      font-size: 0.9em;
+    }
+
+    .notification-item.unread {
+      background-color: #eaf7fc;
+      font-weight: bold;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 15px;
+      background-color: #3498db;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background-color: #2980b9;
+    }
+
+    .back-btn {
+      display: inline-block;
+      margin-top: 20px;
+      text-align: center;
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      font-weight: bold;
+      border-radius: 8px;
+      text-decoration: none;
+      display: block;
+      max-width: 200px;
+    }
+
+    .back-btn:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="banner"></div>
+  <h1>PastPort</h1>
+  <p class="tagline">A Passport to Your Memories</p>
+</header>
+
+<main class="main-content">
+  <h2>Your Notifications</h2>
+
+  {% if notifications %}
+    <ul class="notifications-list">
+      {% for notification in notifications %}
+        <li class="notification-item {% if not notification.read %}unread{% endif %}">
+          <p>{{ notification.message }}</p>
+          <p><small>Received on {{ notification.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</small></p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No new notifications.</p>
+  {% endif %}
+  
+  <a href="/home" class="back-btn">← Back to Home</a>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Profile</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="container">
+    <button onclick="window.location.href='/home';" style="background: #ff6347; margin-bottom: 20px;">Back to Home</button>
+    <h2>My Profile</h2>
+    <div class="form-group">
+      <label>Username:</label>
+      <p>{{ user.username }}</p>
+    </div>
+    <div class="form-group">
+      <label>Email:</label>
+      <p>{{ user.email }}</p>
+    </div>
+    
+    <a href="{{ url_for('home.edit_profile') }}">
+      <button class="btn btn-primary full-width">Edit Profile</button>
+    </a>
+
+    <!-- 🔐 Logout Button -->
+    <a href="{{ url_for('home.logout') }}">
+      <button class="btn btn-danger full-width" style="margin-top: 10px;">Logout</button>
+    </a>
+  </div>
+</body>
+</html>
