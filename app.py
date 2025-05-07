@@ -36,15 +36,11 @@ register_socketio_handlers(socketio)
 def index():
     return "<h1>Welcome to PastPort API</h1><p>Visit /login or /create to get started.</p>"
 
-@app.route('/run-delete-expired')
-def run_delete_expired():
-    # Optional: Add a secret token check for security
-    token = request.args.get('token')
-    if token != 'my_secret_token':
-        return "Unauthorized", 401
-
+@app.route('/refresh-capsules', methods=['POST'])
+def refresh_capsules():
+    # Optional: Add session or role check here
     delete_expired_capsules()
-    return "Expired capsules deleted successfully!"
+    return "Capsules refreshed", 200
 
 if __name__ == '__main__':
     with app.app_context():
