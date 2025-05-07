@@ -115,6 +115,22 @@
       display: inline;
       margin-right: 10px;
     }
+    .btn:disabled {
+      background-color: #ccc;
+      color: #777;
+      cursor: not-allowed;
+      border: 1px solid #ddd;
+    }
+    .flash-messages ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    .flash-messages ul li {
+      background-color: #f39c12;
+      color: white;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -153,10 +169,18 @@
 </header>
 
 <main class="main-content">
-  <!-- 🔄 Refresh button -->
-  <div style="margin-bottom: 20px;">
-    <button class="btn btn-outline-secondary" onclick="refreshCapsules()">🔄 Refresh Capsules</button>
-  </div>
+  <!-- Flash messages section -->
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="flash-messages">
+        <ul>
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  {% endwith %}
 
   <h2>Explore Public Capsules</h2>
 
@@ -182,7 +206,7 @@
         {% if 'user' in session %}
           {% set user_liked = false %}
           {% set is_bookmarked = False %}
-
+          
           {% for like in capsule.likes %}
             {% if like.user_id == session['user'] %}
               {% set user_liked = true %}
@@ -194,7 +218,7 @@
               {% set is_bookmarked = True %}
             {% endif %}
           {% endfor %}
-
+          
           {% if user_liked %}
             <form action="{{ url_for('capsule.unlike_capsule', id=capsule.id) }}" method="POST">
               <button type="submit" class="btn btn-danger">Unlike</button>
