@@ -51,26 +51,26 @@
         <h2>Statistics</h2>
         <div class="stat">
             <span class="stat-label">Views:</span>
-            <span class="stat-value">124</span>
+            <span class="stat-value">{{ total_views }}</span>
         </div>
         <div class="stat">
             <span class="stat-label">Likes:</span>
-            <span class="stat-value">47</span>
+            <span class="stat-value">{{ likes_received }}</span>
         </div>
         <div class="stat">
             <span class="stat-label">Bookmarks:</span>
-            <span class="stat-value">20</span>
+            <span class="stat-value">{{ bookmarks_count }}</span>
         </div>
         <div class="stat">
             <span class="stat-label">Downloads:</span>
-            <span class="stat-value">15</span>
+            <span class="stat-value">{{ total_downloads }}</span>
         </div>
         <div class="stat">
-            <span class="stat-label">Comments:</span>
-            <span class="stat-value">10</span>
+            <span class="stat-label">Unread Notifications:</span>
+            <span class="stat-value">{{ unread_notifications }}</span>
         </div>
         <div class="last-opened">
-            Last Opened: 2025-05-06 at 15:32:10 UTC
+            Last Opened: {{ last_opened_time }}
         </div>
     </div>
 
