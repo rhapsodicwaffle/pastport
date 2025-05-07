@@ -181,9 +181,17 @@
 
         {% if 'user' in session %}
           {% set user_liked = false %}
+          {% set is_bookmarked = False %}
+
           {% for like in capsule.likes %}
             {% if like.user_id == session['user'] %}
               {% set user_liked = true %}
+            {% endif %}
+          {% endfor %}
+
+          {% for bookmark in bookmarks %}
+            {% if bookmark.item_id == capsule.id %}
+              {% set is_bookmarked = True %}
             {% endif %}
           {% endfor %}
 
@@ -196,8 +204,18 @@
               <button type="submit" class="btn btn-success">Like</button>
             </form>
           {% endif %}
+
+          {% if is_bookmarked %}
+            <form action="{{ url_for('bookmark.remove_bookmark', item_type='capsule', item_id=capsule.id) }}" method="POST" style="display:inline; margin-left: 8px;">
+              <button type="submit" class="btn btn-success" disabled>📌 Bookmarked</button>
+            </form>
+          {% else %}
+            <form action="{{ url_for('bookmark.add_bookmark', item_type='capsule', item_id=capsule.id) }}" method="POST" style="display:inline; margin-left: 8px;">
+              <button type="submit" class="btn btn-outline-secondary">📌 Bookmark</button>
+            </form>
+          {% endif %}
         {% else %}
-          <p>Please log in to like this capsule.</p>
+          <p>Please log in to like or bookmark this capsule.</p>
         {% endif %}
       </div>
     </div>
@@ -205,12 +223,6 @@
     <p style="color: gray;">No public capsules found.</p>
   {% endfor %}
 </main>
-
-<form method="POST" action="/refresh-capsules" style="margin-bottom: 20px;">
-  <button type="submit" class="btn btn-outline-secondary">🔄 Refresh Capsules</button>
-</form>
-
-
 
 </body>
 </html>
