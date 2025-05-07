@@ -40,7 +40,7 @@ def send_invite():
     if not email or not room_id:
         return jsonify({'error': 'Missing email or room ID'}), 400
 
-    invite_link = f"http://127.0.0.1:5000/collab/?room_id={room_id}"
+    invite_link = f"https://pastport-six.vercel.app/collab"
     try:
         qr = qrcode.make(invite_link)
         buffered = io.BytesIO()
