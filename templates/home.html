@@ -235,9 +235,12 @@
           {% endif %}
 
           {% if is_bookmarked %}
-            <form action="{{ url_for('bookmark.remove_bookmark', item_type='capsule', item_id=capsule.id) }}" method="POST" style="display:inline; margin-left: 8px;">
-              <button type="submit" class="btn btn-success" disabled>📌 Bookmarked</button>
-            </form>
+            <div class="bookmark-timer-container" data-capsule-id="{{ capsule.id }}">
+  <form action="{{ url_for('bookmark.remove_bookmark', item_type='capsule', item_id=capsule.id) }}" method="POST" class="auto-remove-form" style="display:inline; margin-left: 8px;">
+    <button type="submit" class="btn btn-success" disabled>📌 Bookmarked</button>
+    <span class="timer" style="margin-left: 10px; font-weight: bold; color: #e67e22;">(01:00)</span>
+  </form>
+</div>
           {% else %}
             <form action="{{ url_for('bookmark.add_bookmark', item_type='capsule', item_id=capsule.id) }}" method="POST" style="display:inline; margin-left: 8px;">
               <button type="submit" class="btn btn-outline-secondary">📌 Bookmark</button>
@@ -252,6 +255,28 @@
     <p style="color: gray;">No public capsules found.</p>
   {% endfor %}
 </main>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('.bookmark-timer-container').forEach(container => {
+      const timerDisplay = container.querySelector('.timer');
+      const form = container.querySelector('.auto-remove-form');
+
+      let timeLeft = 60; // seconds
+
+      const countdown = setInterval(() => {
+        timeLeft--;
+        const minutes = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+        const seconds = String(timeLeft % 60).padStart(2, '0');
+        timerDisplay.textContent = `(${minutes}:${seconds})`;
+
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          form.submit(); // auto-remove bookmark
+        }
+      }, 1000);
+    });
+  });
+</script>
   
 </body>
 </html>
