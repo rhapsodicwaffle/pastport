@@ -206,22 +206,11 @@
   {% endfor %}
 </main>
 
-<!-- JavaScript to trigger the Flask backend refresh -->
-<script>
-  async function refreshCapsules() {
-    try {
-      const response = await fetch('/refresh-capsules', { method: 'POST' });
-      if (response.ok) {
-        alert('Capsules refreshed!');
-        window.location.reload();
-      } else {
-        alert('Failed to refresh capsules.');
-      }
-    } catch (error) {
-      alert('Error refreshing capsules.');
-    }
-  }
-</script>
+<form method="POST" action="/refresh-capsules" style="margin-bottom: 20px;">
+  <button type="submit" class="btn btn-outline-secondary">🔄 Refresh Capsules</button>
+</form>
+
+
 
 </body>
 </html>
