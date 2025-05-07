@@ -182,7 +182,8 @@ def search_capsules():
 
     if query:
         capsules = capsules.filter(
-            (Capsule.owner_username.ilike(f"%{query}%")) |
+            (Capsule.owner_username.ilike(f"%{query}%")) | 
+            (Capsule.title.ilike(f"%{query}%")) |
             (Capsule.tags.ilike(f"%{query}%")) |
             (db.cast(Capsule.created_at, db.String).ilike(f"%{query}%"))
         )
