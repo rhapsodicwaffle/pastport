@@ -181,7 +181,9 @@
       </div>
     {% endif %}
   {% endwith %}
-
+  <form method="POST" action="/refresh-capsules" style="margin-bottom: 20px;">
+  <button type="submit" class="btn btn-outline-secondary">🔄 Refresh Capsules</button>
+  </form>
   <h2>Explore Public Capsules</h2>
 
   {% if request.args.query %}
@@ -247,10 +249,6 @@
     <p style="color: gray;">No public capsules found.</p>
   {% endfor %}
 </main>
-
-<form method="POST" action="/refresh-capsules" style="margin-bottom: 20px;">
-  <button type="submit" class="btn btn-outline-secondary">🔄 Refresh Capsules</button>
-</form>
   
 </body>
 </html>
