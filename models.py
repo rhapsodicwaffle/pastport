@@ -28,13 +28,13 @@ class Capsule(db.Model):
     verifier_emails = db.Column(JSON, nullable=True)  # list of verifier emails
     verifier_confirmations = db.Column(JSON, nullable=True)  # list of confirmed emails
     recipient_emails = db.Column(JSON, nullable=True)  # list of recipients
-
+    views = db.Column(db.Integer, default=0)  # Track views
 
 class File(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(255))
     capsule_id = db.Column(db.Integer, db.ForeignKey('capsule.id'))
-
+    downloads = db.Column(db.Integer, default=0)  # Track downloads
 
 class BlogPost(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -59,7 +59,6 @@ class Like(db.Model):
     def __repr__(self):
         return f'<Like {self.user_id} on Capsule {self.capsule_id}>'
 
-
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.String, db.ForeignKey('user.username'), nullable=False)  # Recipient
@@ -73,9 +72,6 @@ class Notification(db.Model):
 
     def __repr__(self):
         return f'<Notification {self.message}>'
-
-
-
 
 class CollaborativeMessage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
