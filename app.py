@@ -10,6 +10,7 @@ from routes.home import home
 from routes.delete_expired_capsules import delete_expired_capsules
 from routes.blog import blog  
 from routes.bookmark import bookmark_bp
+from routes.stats import stats_bp
 
 app = Flask(__name__)
 
@@ -28,6 +29,7 @@ app.register_blueprint(home)
 app.register_blueprint(blog)
 app.register_blueprint(bookmark_bp)
 app.register_blueprint(collab)
+app.register_blueprint(stats_bp)
 register_socketio_handlers(socketio)
 
 @app.route('/')
