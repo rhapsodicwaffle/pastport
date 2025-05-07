@@ -6,6 +6,7 @@
   <title>PastPort - Home</title>
   <link rel="stylesheet" href="/static/styles.css" />
   <style>
+    /* Existing styles here (copied as-is) */
     .dropdown {
       position: relative;
       display: inline-block;
@@ -114,22 +115,6 @@
       display: inline;
       margin-right: 10px;
     }
-    .btn:disabled {
-      background-color: #ccc;
-      color: #777;
-      cursor: not-allowed;
-      border: 1px solid #ddd;
-    }
-    .flash-messages ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    .flash-messages ul li {
-      background-color: #f39c12;
-      color: white;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
   </style>
 </head>
 <body>
@@ -168,19 +153,12 @@
 </header>
 
 <main class="main-content">
-  <h2>Explore Public Capsules</h2>
+  <!-- 🔄 Refresh button -->
+  <div style="margin-bottom: 20px;">
+    <button class="btn btn-outline-secondary" onclick="refreshCapsules()">🔄 Refresh Capsules</button>
+  </div>
 
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      <div class="flash-messages">
-        <ul>
-          {% for message in messages %}
-            <li>{{ message }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-    {% endif %}
-  {% endwith %}
+  <h2>Explore Public Capsules</h2>
 
   {% if request.args.query %}
     <p style="margin-bottom: 20px;">Search results for: <strong>{{ request.args.query }}</strong></p>
@@ -203,20 +181,12 @@
 
         {% if 'user' in session %}
           {% set user_liked = false %}
-          {% set is_bookmarked = False %}
-          
           {% for like in capsule.likes %}
             {% if like.user_id == session['user'] %}
               {% set user_liked = true %}
             {% endif %}
           {% endfor %}
 
-          {% for bookmark in bookmarks %}
-            {% if bookmark.item_id == capsule.id %}
-              {% set is_bookmarked = True %}
-            {% endif %}
-          {% endfor %}
-          
           {% if user_liked %}
             <form action="{{ url_for('capsule.unlike_capsule', id=capsule.id) }}" method="POST">
               <button type="submit" class="btn btn-danger">Unlike</button>
@@ -226,18 +196,8 @@
               <button type="submit" class="btn btn-success">Like</button>
             </form>
           {% endif %}
-
-          {% if is_bookmarked %}
-            <form action="{{ url_for('bookmark.remove_bookmark', item_type='capsule', item_id=capsule.id) }}" method="POST" style="display:inline; margin-left: 8px;">
-              <button type="submit" class="btn btn-success" disabled>📌 Bookmarked</button>
-            </form>
-          {% else %}
-            <form action="{{ url_for('bookmark.add_bookmark', item_type='capsule', item_id=capsule.id) }}" method="POST" style="display:inline; margin-left: 8px;">
-              <button type="submit" class="btn btn-outline-secondary">📌 Bookmark</button>
-            </form>
-          {% endif %}
         {% else %}
-          <p>Please log in to like or bookmark this capsule.</p>
+          <p>Please log in to like this capsule.</p>
         {% endif %}
       </div>
     </div>
@@ -245,6 +205,23 @@
     <p style="color: gray;">No public capsules found.</p>
   {% endfor %}
 </main>
+
+<!-- JavaScript to trigger the Flask backend refresh -->
+<script>
+  async function refreshCapsules() {
+    try {
+      const response = await fetch('/refresh-capsules', { method: 'POST' });
+      if (response.ok) {
+        alert('Capsules refreshed!');
+        window.location.reload();
+      } else {
+        alert('Failed to refresh capsules.');
+      }
+    } catch (error) {
+      alert('Error refreshing capsules.');
+    }
+  }
+</script>
 
 </body>
 </html>
