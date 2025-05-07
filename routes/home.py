@@ -1,21 +1,38 @@
 from flask import Blueprint, render_template, request, redirect, session, flash, url_for
 from models import Capsule, db, User, Bookmark, Notification
 from werkzeug.security import generate_password_hash
-
+from datetime import datetime, timedelta
 home = Blueprint('home', __name__)
 
 
 @home.route('/home')
 
+@home.route('/home')
 def homepage():
     public_capsules = Capsule.query.filter_by(accessibility='public').order_by(Capsule.created_at.desc()).all()
 
     bookmarked_ids = set()
-    if 'user' in session:
-        bookmarks = Bookmark.query.filter_by(user_id=session['user'], item_type='capsule').all()
-        bookmarked_ids = set(b.item_id for b in bookmarks)
+    bookmark_timestamps = {}
 
-    return render_template('home.html', capsules=public_capsules, bookmarked_ids=bookmarked_ids)
+    if 'user' in session:
+        now = datetime.utcnow()
+        bookmarks = Bookmark.query.filter_by(user_id=session['user'], item_type='capsule').all()
+
+        for b in bookmarks:
+            if (now - b.timestamp) < timedelta(minutes=1):
+                bookmarked_ids.add(b.item_id)
+                bookmark_timestamps[b.item_id] = b.timestamp  # store creation time
+            else:
+                # Clean up expired bookmark
+                db.session.delete(b)
+        db.session.commit()
+
+    return render_template(
+        'home.html',
+        capsules=public_capsules,
+        bookmarked_ids=bookmarked_ids,
+        bookmark_timestamps=bookmark_timestamps  # pass to template
+    )
 
 
 @home.route('/profile')
